@@ -1,5 +1,5 @@
 # Classy Event Handler
-A event handler written in C# and TypeScript
+A event handler written in C#
 
 ## Purpose
 This event handler allows for the creation of objects where every public method is automatically an event handler. An `EventHandler` will Invoke events and the appropriate public method will called for each instance of an object that extends an `IEventable<T>` that is present.
