@@ -164,6 +164,24 @@ namespace ClassyEventHandlerTest
         }
 
         [TestMethod]
+        public void A_Invoke_Dispose()
+        {
+            // Arrange
+            var ee = new EventHandler();
+            var a = new A(ee);
+
+            // Act
+            ee.Invoke("Update");
+            a.Dispose();
+            a.Enabled = true;
+            ee.Invoke("Update");
+
+            // Assert
+            Assert.IsFalse(a.Enabled);
+            Assert.AreEqual(1, a.UpdateCalled);
+        }
+
+        [TestMethod]
         public void A_Invoke_NotPublic()
         {
             // Arrange

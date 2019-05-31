@@ -33,6 +33,7 @@ namespace ClassyEventHandler
             get => _handler.HasInstance(this);
             set
             {
+                if (disposedValue) { return; }
                 if (value)
                 {
                     _handler.AddEventable(this);
