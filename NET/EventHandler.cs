@@ -136,7 +136,7 @@ namespace ClassyEventHandler
 
             internal object Acquire(object[] parameters) => Method.Invoke(Instance, parameters);
 
-            internal bool Invoke(object[] parameters) => Method.Invoke(Instance, parameters) is bool val ? val : false;
+            internal bool Invoke(object[] parameters) => Acquire(parameters) is bool val ? val : false;
         }
     }
 }
