@@ -1,5 +1,5 @@
 # Classy Event Handler
-A event handler written in C#
+A event handler written in C# and TypeScript
 
 ## Purpose
 This event handler allows for the creation of objects where every public method is automatically an event handler. An `EventHandler` will Invoke events and the appropriate public method will called for each instance of an object that extends an `IEventable<T>` that is present.
@@ -20,7 +20,7 @@ This event handler allows for the creation of objects where every public method 
 
 #### Simple
 ```c#
-[TestClass]
+ [TestClass]
 public class Example1
 {
     private class Cat : Eventable<Cat>
@@ -29,14 +29,11 @@ public class Example1
         {
         }
 
+        public override Cat Instance => this;
+        
         public bool IsSleeping { get; private set; } = true;
 
-        public override Cat Instance => this;
-
-        public void LoudSound()
-        {
-            IsSleeping = false;
-        }
+        public void LoudSound() => IsSleeping = false;
     }
 
     [TestMethod]
@@ -58,6 +55,20 @@ public class Example1
 
         Assert.IsTrue(cat.IsSleeping);
         await ee.InvokeAsync("LoudSound");
+        Assert.IsFalse(cat.IsSleeping);
+    }
+
+    [TestMethod]
+    public void DependencyInjectionScenario()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<IEventHandler, EventHandler>();
+        var provider = services.BuildServiceProvider();
+
+        var cat = ActivatorUtilities.CreateInstance<Cat>(provider);
+
+        Assert.IsTrue(cat.IsSleeping);
+        provider.GetService<IEventHandler>().Invoke("LoudSound");
         Assert.IsFalse(cat.IsSleeping);
     }
 }
