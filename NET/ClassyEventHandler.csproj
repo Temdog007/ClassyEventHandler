@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <Authors>Temdog007</Authors>
+    <Company />
+    <PackageId>ClassyEventHandler_Temdog007</PackageId>
+    <Description>A event handler written in C#</Description>
+    <PackageTags>c# event handler class</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
