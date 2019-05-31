@@ -4,4 +4,10 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="ClassyEventHandlerTest\**" />
+    <EmbeddedResource Remove="ClassyEventHandlerTest\**" />
+    <None Remove="ClassyEventHandlerTest\**" />
+  </ItemGroup>
+
 </Project>

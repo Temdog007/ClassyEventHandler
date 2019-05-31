@@ -7,7 +7,7 @@ namespace ClassyEventHandler
         T Instance { get; }
     }
 
-    public abstract class Eventable<T> : IEventable<T> where T: class
+    public abstract class Eventable<T> : IEventable<T> where T : class
     {
         private readonly IEventHandler _handler;
 
@@ -15,6 +15,22 @@ namespace ClassyEventHandler
         {
             _handler = handler;
             _handler.AddEventable(this);
+        }
+
+        public bool Enabled
+        {
+            get => _handler.HasInstance(this);
+            set
+            {
+                if (value)
+                {
+                    _handler.AddEventable(this);
+                }
+                else
+                {
+                    _handler.RemoveEventable(this);
+                }
+            }
         }
 
         public abstract T Instance { get; }
