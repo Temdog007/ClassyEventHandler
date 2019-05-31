@@ -70,7 +70,7 @@ namespace ClassyEventHandler
             return true;
         }
 
-        bool IEventHandler.HasInstance<T>(Eventable<T> eventable)
+        bool IEventHandler.HasInstance<T>(IEventable<T> eventable)
         {
             var type = typeof(T);
             return _instancesDictionary.ContainsKey(type) ? _instancesDictionary[type].Contains(eventable.Instance) : false;

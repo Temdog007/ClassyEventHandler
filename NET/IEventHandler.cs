@@ -15,7 +15,7 @@ namespace ClassyEventHandler
 
         bool AddEventable<T>(IEventable<T> eventable) where T : class;
 
-        bool HasInstance<T>(Eventable<T> eventable) where T : class;
+        bool HasInstance<T>(IEventable<T> eventable) where T : class;
 
         void Invoke(string eventName, params object[] parameters);
 
