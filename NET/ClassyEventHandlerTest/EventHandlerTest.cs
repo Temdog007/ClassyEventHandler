@@ -87,17 +87,18 @@ namespace ClassyEventHandlerTest
         }
 
         [TestMethod]
-        public void A_Invoke_Parameters()
+        public async Task A_Invoke_Async()
         {
             // Arrange
             var ee = new EventHandler();
             var a = new A(ee);
 
             // Act
-            ee.Invoke("SetName", "Test");
+            await ee.InvokeAsync("Update");
 
             // Assert
-            Assert.AreEqual("Test", a.Name);
+            Assert.IsTrue(a.Enabled);
+            Assert.AreEqual(1, a.UpdateCalled);
         }
 
         [TestMethod]
@@ -115,21 +116,6 @@ namespace ClassyEventHandlerTest
         }
 
         [TestMethod]
-        public async Task A_Invoke_Async()
-        {
-            // Arrange
-            var ee = new EventHandler();
-            var a = new A(ee);
-
-            // Act
-            await ee.InvokeAsync("Update");
-
-            // Assert
-            Assert.IsTrue(a.Enabled);
-            Assert.AreEqual(1, a.UpdateCalled);
-        }
-
-        [TestMethod]
         public void A_Invoke_Disabled()
         {
             // Arrange
@@ -142,6 +128,24 @@ namespace ClassyEventHandlerTest
             // Assert
             Assert.IsFalse(a.Enabled);
             Assert.AreEqual(0, a.UpdateCalled);
+        }
+
+        [TestMethod]
+        public void A_Invoke_Dispose()
+        {
+            // Arrange
+            var ee = new EventHandler();
+            var a = new A(ee);
+
+            // Act
+            ee.Invoke("Update");
+            a.Dispose();
+            a.Enabled = true;
+            ee.Invoke("Update");
+
+            // Assert
+            Assert.IsFalse(a.Enabled);
+            Assert.AreEqual(1, a.UpdateCalled);
         }
 
         [TestMethod]
@@ -164,24 +168,6 @@ namespace ClassyEventHandlerTest
         }
 
         [TestMethod]
-        public void A_Invoke_Dispose()
-        {
-            // Arrange
-            var ee = new EventHandler();
-            var a = new A(ee);
-
-            // Act
-            ee.Invoke("Update");
-            a.Dispose();
-            a.Enabled = true;
-            ee.Invoke("Update");
-
-            // Assert
-            Assert.IsFalse(a.Enabled);
-            Assert.AreEqual(1, a.UpdateCalled);
-        }
-
-        [TestMethod]
         public void A_Invoke_NotPublic()
         {
             // Arrange
@@ -194,6 +180,20 @@ namespace ClassyEventHandlerTest
             // Assert
             Assert.IsTrue(a.Enabled);
             Assert.AreEqual(0, a.UpdateCalled);
+        }
+
+        [TestMethod]
+        public void A_Invoke_Parameters()
+        {
+            // Arrange
+            var ee = new EventHandler();
+            var a = new A(ee);
+
+            // Act
+            ee.Invoke("SetName", "Test");
+
+            // Assert
+            Assert.AreEqual("Test", a.Name);
         }
 
         [TestMethod]
@@ -269,15 +269,12 @@ namespace ClassyEventHandlerTest
 
             public override A Instance => this;
 
+            public string Name { get; protected set; } = string.Empty;
             public int UpdateCalled { get; protected set; }
 
-            public string Name { get; protected set; } = string.Empty;
+            public static bool StaticUpdate() => true;
 
             public int GetUpdate() => UpdateCalled;
-
-            public virtual void Update() => ++UpdateCalled;
-
-            public virtual void SetName(string newName) => Name = newName;
 
             public virtual bool PartialUpdate()
             {
@@ -285,12 +282,14 @@ namespace ClassyEventHandlerTest
                 return false;
             }
 
+            public virtual void SetName(string newName) => Name = newName;
+
+            public virtual void Update() => ++UpdateCalled;
+
             private int NotPublicUpdate()
             {
                 return ++UpdateCalled;
             }
-
-            public static bool StaticUpdate() => true;
         }
 
         private class B : A
@@ -303,13 +302,13 @@ namespace ClassyEventHandlerTest
             {
             }
 
-            public override void Update() => UpdateCalled += 10;
-
             public override bool PartialUpdate()
             {
                 Update();
                 return true;
             }
+
+            public override void Update() => UpdateCalled += 10;
         }
     }
 }
