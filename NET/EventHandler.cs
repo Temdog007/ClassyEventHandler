@@ -14,6 +14,27 @@ namespace ClassyEventHandler
 
         private readonly Dictionary<string, HashSet<MethodInstance>> _methodInstances = new Dictionary<string, HashSet<MethodInstance>>();
 
+        public IEnumerable<object> Acquire(string eventName, params object[] parameters)
+        {
+            if(!_methodInstances.ContainsKey(eventName))
+            {
+                yield break;
+            }
+
+            foreach (var methodInstance in _methodInstances[eventName])
+            {
+                yield return methodInstance.Acquire(parameters);
+            }
+        }
+
+        public IEnumerable<T> Acquire<T>(string eventName, params object[] parameters) => from obj in Acquire(eventName, parameters)
+                                                                                          where obj is T
+                                                                                          select (T)obj;
+
+        public Task<IEnumerable<object>> AcquireAsync(string eventName, params object[] parameters) => Task.Run(() => Acquire(eventName, parameters));
+
+        public Task<IEnumerable<T>> AcquireAsync<T>(string eventName, params object[] parameters) => Task.Run(() => Acquire<T>(eventName, parameters));
+
         public bool AddEventable<T>(IEventable<T> eventable) where T : class
         {
             var type = typeof(T);
@@ -24,7 +45,7 @@ namespace ClassyEventHandler
                 _instancesDictionary.Add(type, new HashSet<object>());
             }
 
-            if(_instancesDictionary[type].Contains(instance))
+            if (_instancesDictionary[type].Contains(instance))
             {
                 return false;
             }
@@ -52,7 +73,7 @@ namespace ClassyEventHandler
         bool IEventHandler.HasInstance<T>(Eventable<T> eventable)
         {
             var type = typeof(T);
-            return _instancesDictionary[type].Contains(eventable.Instance);
+            return _instancesDictionary.ContainsKey(type) ? _instancesDictionary[type].Contains(eventable.Instance) : false;
         }
 
         public void Invoke(string eventName, params object[] parameters)
@@ -71,11 +92,11 @@ namespace ClassyEventHandler
             }
         }
 
-        public async Task<bool[]> InvokeAsync(string eventName, params object[] parameters)
+        public Task InvokeAsync(string eventName, params object[] parameters)
         {
             if (!_methodInstances.ContainsKey(eventName))
             {
-                return new bool[] { };
+                return Task.Run(() => new bool[] { });
             }
 
             var tasks = new List<Task<bool>>();
@@ -84,7 +105,7 @@ namespace ClassyEventHandler
                 tasks.Add(Task.Run(() => methodInstance.Invoke(parameters)));
             }
 
-            return await Task.WhenAll(tasks);
+            return Task.WhenAll(tasks);
         }
 
         public bool RemoveEventable<T>(IEventable<T> eventable) where T : class
@@ -100,29 +121,22 @@ namespace ClassyEventHandler
             var type = typeof(T);
             return _instancesDictionary[type].Remove(instance);
         }
-    }
 
-    internal class MethodInstance
-    {
-        public MethodInstance(MethodInfo method, object instance)
+        private class MethodInstance
         {
-            Method = method ?? throw new ArgumentNullException(nameof(method));
-            Instance = instance ?? throw new ArgumentNullException(nameof(instance));
-        }
-
-        internal object Instance { get; }
-
-        internal MethodInfo Method { get; }
-
-        public bool Invoke(object[] parameters)
-        {
-            var returnValue = Method.Invoke(Instance, parameters);
-            if (returnValue is bool val)
+            internal MethodInstance(MethodInfo method, object instance)
             {
-                return val;
+                Method = method ?? throw new ArgumentNullException(nameof(method));
+                Instance = instance ?? throw new ArgumentNullException(nameof(instance));
             }
 
-            return false;
+            internal object Instance { get; }
+
+            internal MethodInfo Method { get; }
+
+            internal object Acquire(object[] parameters) => Method.Invoke(Instance, parameters);
+
+            internal bool Invoke(object[] parameters) => Method.Invoke(Instance, parameters) is bool val ? val : false;
         }
     }
 }

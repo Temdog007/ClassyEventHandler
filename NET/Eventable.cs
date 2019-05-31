@@ -11,11 +11,22 @@ namespace ClassyEventHandler
     {
         private readonly IEventHandler _handler;
 
-        public Eventable(IEventHandler handler)
+        public Eventable(IEventHandler handler) : this(handler, true)
+        {
+            
+        }
+
+        public Eventable(IEventHandler handler, bool enabled)
         {
             _handler = handler;
-            _handler.AddEventable(this);
+
+            if (enabled)
+            {
+                _handler.AddEventable(this);
+            }
         }
+
+        public void Invoke(string eventName) => _handler.Invoke(eventName);
 
         public bool Enabled
         {

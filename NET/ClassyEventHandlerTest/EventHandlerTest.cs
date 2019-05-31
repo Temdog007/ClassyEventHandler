@@ -1,6 +1,8 @@
 using ClassyEventHandler;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 using System.Threading.Tasks;
+using EventHandler = ClassyEventHandler.EventHandler;
 
 namespace ClassyEventHandlerTest
 {
@@ -8,7 +10,69 @@ namespace ClassyEventHandlerTest
     public class EventHandlerTest
     {
         [TestMethod]
-        public void A_TestEvent()
+        public void A_Acquire()
+        {
+            // Arrange
+            var ee = new EventHandler();
+            new A(ee);
+
+            // Act
+            var result = ee.Acquire("Update");
+
+            // Assert
+            CollectionAssert.AreEqual(result.ToArray(), new object[] { null });
+        }
+
+        [TestMethod]
+        public async Task A_Acquire_Async()
+        {
+            // Arrange
+            var ee = new EventHandler();
+            new A(ee);
+
+            // Act
+            var result = await ee.AcquireAsync("Update");
+
+            // Assert
+            CollectionAssert.AreEqual(result.ToArray(), new object[] { null });
+        }
+
+        [TestMethod]
+        public void A_Acquire_T()
+        {
+            // Arrange
+            var ee = new EventHandler();
+            new A(ee);
+
+            // Act
+            ee.Invoke("Update");
+            var result1 = ee.Acquire<bool>("GetUpdate");
+            var result2 = ee.Acquire<int>("GetUpdate");
+
+            // Assert
+            CollectionAssert.AreEqual(result1.ToArray(), new bool[] { });
+            CollectionAssert.AreEqual(result2.ToArray(), new int[] { 1 });
+        }
+
+        [TestMethod]
+        public async Task A_Acquire_T_Async()
+        {
+            // Arrange
+            var ee = new EventHandler();
+            new A(ee);
+
+            // Act
+            await ee.InvokeAsync("Update");
+            var result1 = await ee.AcquireAsync<bool>("GetUpdate");
+            var result2 = await ee.AcquireAsync<int>("GetUpdate");
+
+            // Assert
+            CollectionAssert.AreEqual(result1.ToArray(), new bool[] { });
+            CollectionAssert.AreEqual(result2.ToArray(), new int[] { 1 });
+        }
+
+        [TestMethod]
+        public void A_Invoke()
         {
             // Arrange
             var ee = new EventHandler();
@@ -23,29 +87,56 @@ namespace ClassyEventHandlerTest
         }
 
         [TestMethod]
-        public async Task A_TestEventAsync()
+        public void A_Invoke_Parameters()
         {
             // Arrange
             var ee = new EventHandler();
             var a = new A(ee);
 
             // Act
-            var results = await ee.InvokeAsync("Update");
+            ee.Invoke("SetName", "Test");
 
             // Assert
-            CollectionAssert.AreEqual(new bool[] { false }, results);
+            Assert.AreEqual("Test", a.Name);
+        }
+
+        [TestMethod]
+        public async Task A_Invoke_Async_Parameters()
+        {
+            // Arrange
+            var ee = new EventHandler();
+            var a = new A(ee);
+
+            // Act
+            await ee.InvokeAsync("SetName", "Test");
+
+            // Assert
+            Assert.AreEqual("Test", a.Name);
+        }
+
+        [TestMethod]
+        public async Task A_Invoke_Async()
+        {
+            // Arrange
+            var ee = new EventHandler();
+            var a = new A(ee);
+
+            // Act
+            await ee.InvokeAsync("Update");
+
+            // Assert
+            Assert.IsTrue(a.Enabled);
             Assert.AreEqual(1, a.UpdateCalled);
         }
 
         [TestMethod]
-        public void A_TestEventDisabled()
+        public void A_Invoke_Disabled()
         {
             // Arrange
             var ee = new EventHandler();
-            var a = new A(ee);
+            var a = new A(ee, false);
 
             // Act
-            a.Enabled = false;
             ee.Invoke("Update");
 
             // Assert
@@ -54,7 +145,7 @@ namespace ClassyEventHandlerTest
         }
 
         [TestMethod]
-        public void A_TestEventInScope()
+        public void A_Invoke_InScope()
         {
             // Arrange
             var ee = new EventHandler();
@@ -73,7 +164,7 @@ namespace ClassyEventHandlerTest
         }
 
         [TestMethod]
-        public void A_TestEventNotPublic()
+        public void A_Invoke_NotPublic()
         {
             // Arrange
             var ee = new EventHandler();
@@ -88,7 +179,37 @@ namespace ClassyEventHandlerTest
         }
 
         [TestMethod]
-        public void AB_TestEventEndEarly()
+        public void A_Invoke_Property()
+        {
+            // Arrange
+            var ee = new EventHandler();
+            var a = new A(ee);
+
+            // Act
+            ee.Invoke("Update");
+            var result = ee.Acquire("UpdateCalled");
+
+            // Assert
+            Assert.AreEqual(1, a.UpdateCalled);
+            CollectionAssert.AreNotEqual(new[] { true }, result.ToArray());
+        }
+
+        [TestMethod]
+        public void A_Invoke_Static()
+        {
+            // Arrange
+            var ee = new EventHandler();
+            new A(ee);
+
+            // Act
+            var result = ee.Acquire<bool>("StaticUpdate");
+
+            // Assert
+            CollectionAssert.AreNotEqual(new[] { true }, result.ToArray());
+        }
+
+        [TestMethod]
+        public void AB_Invoke_EndEarly()
         {
             // Arrange
             var ee = new EventHandler();
@@ -96,7 +217,7 @@ namespace ClassyEventHandlerTest
             var a = new A(ee);
 
             // Act
-            ee.Invoke("Update");
+            ee.Invoke("PartialUpdate");
 
             // Assert
             Assert.AreEqual(0, a.UpdateCalled);
@@ -104,7 +225,7 @@ namespace ClassyEventHandlerTest
         }
 
         [TestMethod]
-        public void B_TestEvent()
+        public void B_Invoke()
         {
             // Arrange
             var ee = new EventHandler();
@@ -124,13 +245,25 @@ namespace ClassyEventHandlerTest
             {
             }
 
+            public A(IEventHandler handler, bool enabled) : base(handler, enabled)
+            {
+            }
+
             public override A Instance => this;
 
             public int UpdateCalled { get; protected set; }
 
-            public virtual bool Update()
+            public string Name { get; protected set; } = string.Empty;
+
+            public int GetUpdate() => UpdateCalled;
+
+            public virtual void Update() => ++UpdateCalled;
+
+            public virtual void SetName(string newName) => Name = newName;
+
+            public virtual bool PartialUpdate()
             {
-                ++UpdateCalled;
+                Update();
                 return false;
             }
 
@@ -138,6 +271,8 @@ namespace ClassyEventHandlerTest
             {
                 return ++UpdateCalled;
             }
+
+            public static bool StaticUpdate() => true;
         }
 
         private class B : A
@@ -146,9 +281,15 @@ namespace ClassyEventHandlerTest
             {
             }
 
-            public override bool Update()
+            public B(IEventHandler handler, bool enabled) : base(handler, enabled)
             {
-                UpdateCalled += 10;
+            }
+
+            public override void Update() => UpdateCalled += 10;
+
+            public override bool PartialUpdate()
+            {
+                Update();
                 return true;
             }
         }
