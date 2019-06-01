@@ -1,8 +1,8 @@
-using ClassyEventHandler;
+using CEH;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Threading.Tasks;
-using EventHandler = ClassyEventHandler.EventHandler;
+using EventHandler = CEH.EventHandler;
 
 namespace ClassyEventHandlerTest
 {

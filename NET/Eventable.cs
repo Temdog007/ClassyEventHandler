@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ClassyEventHandler
+namespace CEH
 {
     public interface IEventable<T> : IDisposable where T : class
     {

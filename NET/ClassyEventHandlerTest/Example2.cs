@@ -1,4 +1,4 @@
-﻿using ClassyEventHandler;
+﻿using CEH;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 

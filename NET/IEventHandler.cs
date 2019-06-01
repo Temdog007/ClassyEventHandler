@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ClassyEventHandler
+namespace CEH
 {
     public interface IEventHandler
     {

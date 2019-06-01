@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace ClassyEventHandler
+namespace CEH
 {
     public class EventHandler : IEventHandler
     {

@@ -1,4 +1,4 @@
-﻿using ClassyEventHandler;
+﻿using CEH;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
