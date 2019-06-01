@@ -16,7 +16,7 @@ namespace CEH
 
         public IEnumerable<object> Acquire(string eventName, params object[] parameters)
         {
-            if(!_methodInstances.ContainsKey(eventName))
+            if (!_methodInstances.ContainsKey(eventName))
             {
                 yield break;
             }
@@ -35,22 +35,21 @@ namespace CEH
 
         public Task<IEnumerable<T>> AcquireAsync<T>(string eventName, params object[] parameters) => Task.Run(() => Acquire<T>(eventName, parameters));
 
-        public bool AddEventable<T>(IEventable<T> eventable) where T : class
+        public bool Add<T>(T t) where T : class
         {
             var type = typeof(T);
 
-            var instance = eventable.Instance;
             if (!_instancesDictionary.ContainsKey(type))
             {
                 _instancesDictionary.Add(type, new HashSet<object>());
             }
 
-            if (_instancesDictionary[type].Contains(instance))
+            if (_instancesDictionary[type].Contains(t))
             {
                 return false;
             }
 
-            _instancesDictionary[type].Add(instance);
+            _instancesDictionary[type].Add(t);
 
             if (!_methodDictionary.TryGetValue(type, out var methods))
             {
@@ -64,16 +63,16 @@ namespace CEH
                 {
                     _methodInstances.Add(method.Name, new HashSet<MethodInstance>());
                 }
-                _methodInstances[method.Name].Add(new MethodInstance(method, instance));
+                _methodInstances[method.Name].Add(new MethodInstance(method, t));
             }
 
             return true;
         }
 
-        bool IEventHandler.HasInstance<T>(IEventable<T> eventable)
+        bool IEventComponent.HasInstance<T>(T t)
         {
             var type = typeof(T);
-            return _instancesDictionary.ContainsKey(type) ? _instancesDictionary[type].Contains(eventable.Instance) : false;
+            return _instancesDictionary.ContainsKey(type) ? _instancesDictionary[type].Contains(t) : false;
         }
 
         public void Invoke(string eventName, params object[] parameters)
@@ -108,18 +107,16 @@ namespace CEH
             return Task.WhenAll(tasks);
         }
 
-        public bool RemoveEventable<T>(IEventable<T> eventable) where T : class
+        public bool Remove<T>(T t) where T : class
         {
-            var instance = eventable.Instance;
-
             foreach (var key in _methodInstances.Keys.ToArray())
             {
                 var oldList = _methodInstances[key];
-                _methodInstances[key] = new HashSet<MethodInstance>(oldList.Where(x => x.Instance != instance));
+                _methodInstances[key] = new HashSet<MethodInstance>(oldList.Where(x => x.Instance != t));
             }
 
             var type = typeof(T);
-            return _instancesDictionary[type].Remove(instance);
+            return _instancesDictionary.TryGetValue(type, out var set) ? set.Remove(t) : false;
         }
 
         private class MethodInstance

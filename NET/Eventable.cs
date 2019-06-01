@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CEH
 {
@@ -7,13 +9,12 @@ namespace CEH
         T Instance { get; }
     }
 
-    public abstract class Eventable<T> : IEventable<T> where T : class
+    public abstract class Eventable<TEventType> : IEventComponent, IEventable<TEventType> where TEventType : class
     {
         private readonly IEventHandler _handler;
 
         public Eventable(IEventHandler handler) : this(handler, true)
         {
-            
         }
 
         public Eventable(IEventHandler handler, bool enabled)
@@ -22,30 +23,46 @@ namespace CEH
 
             if (enabled)
             {
-                _handler.AddEventable(this);
+                _handler.Add(Instance);
             }
         }
 
-        public void Invoke(string eventName) => _handler.Invoke(eventName);
-
         public bool Enabled
         {
-            get => _handler.HasInstance(this);
+            get => _handler.HasInstance(Instance);
             set
             {
                 if (disposedValue) { return; }
                 if (value)
                 {
-                    _handler.AddEventable(this);
+                    _handler.Add(Instance);
                 }
                 else
                 {
-                    _handler.RemoveEventable(this);
+                    _handler.Remove(Instance);
                 }
             }
         }
 
-        public abstract T Instance { get; }
+        public abstract TEventType Instance { get; }
+
+        #region IEventComponent
+
+        public IEnumerable<object> Acquire(string eventName, params object[] parameters) => _handler.Acquire(eventName, parameters);
+
+        public IEnumerable<T> Acquire<T>(string eventName, params object[] parameters) => _handler.Acquire<T>(eventName, parameters);
+
+        public Task<IEnumerable<object>> AcquireAsync(string eventName, params object[] parameters) => _handler.AcquireAsync(eventName, parameters);
+
+        public Task<IEnumerable<T>> AcquireAsync<T>(string eventName, params object[] parameters) => _handler.AcquireAsync<T>(eventName, parameters);
+
+        public bool HasInstance<T>(T t) where T : class => _handler.HasInstance(t);
+
+        public void Invoke(string eventName, params object[] parameters) => _handler.Invoke(eventName, parameters);
+
+        public Task InvokeAsync(string eventName, params object[] parameters) => _handler.InvokeAsync(eventName, parameters);
+
+        #endregion IEventComponent
 
         #region IDisposable Support
 
@@ -60,7 +77,7 @@ namespace CEH
         {
             if (!disposedValue)
             {
-                _handler.RemoveEventable(this);
+                _handler.Remove(Instance);
 
                 disposedValue = true;
             }

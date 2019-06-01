@@ -42,6 +42,9 @@
     <Compile Include="..\NET\EventHandler.cs">
       <Link>EventHandler.cs</Link>
     </Compile>
+    <Compile Include="..\NET\IEventComponent.cs">
+      <Link>IEventComponent.cs</Link>
+    </Compile>
     <Compile Include="..\NET\IEventHandler.cs">
       <Link>IEventHandler.cs</Link>
     </Compile>
