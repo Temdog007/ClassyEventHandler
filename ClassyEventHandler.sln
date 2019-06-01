@@ -9,6 +9,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".NET", ".NET", "{39A08138-1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassyEventHandlerTest", "NET\ClassyEventHandlerTest\ClassyEventHandlerTest.csproj", "{3EA5AE2A-D831-446A-9CA7-EE7B95BD3008}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bridge", "Bridge", "{7F2FB8B8-623F-4CAE-B7B7-6FAB73A5A401}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassEventHandlerBridge", "Bridge\ClassEventHandlerBridge.csproj", "{32E4CAB0-D6D4-413B-ADBF-70DBF75BA4A5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "JavaScript", "JavaScript", "{2A650FE5-5EE0-4605-92EC-A821800992AA}"
+	ProjectSection(SolutionItems) = preProject
+		JavaScript\bridge.d.ts = JavaScript\bridge.d.ts
+		JavaScript\bridge.js = JavaScript\bridge.js
+		JavaScript\bridge.meta.js = JavaScript\bridge.meta.js
+		JavaScript\ClassEventHandlerBridge.d.ts = JavaScript\ClassEventHandlerBridge.d.ts
+		JavaScript\ClassEventHandlerBridge.js = JavaScript\ClassEventHandlerBridge.js
+		JavaScript\ClassEventHandlerBridge.meta.js = JavaScript\ClassEventHandlerBridge.meta.js
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +37,10 @@ Global
 		{3EA5AE2A-D831-446A-9CA7-EE7B95BD3008}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3EA5AE2A-D831-446A-9CA7-EE7B95BD3008}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EA5AE2A-D831-446A-9CA7-EE7B95BD3008}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32E4CAB0-D6D4-413B-ADBF-70DBF75BA4A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32E4CAB0-D6D4-413B-ADBF-70DBF75BA4A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32E4CAB0-D6D4-413B-ADBF-70DBF75BA4A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32E4CAB0-D6D4-413B-ADBF-70DBF75BA4A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -30,6 +48,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{6D761F54-CE5D-4D4A-89FB-97748D68499D} = {39A08138-1511-4985-A839-EE38C6604F7C}
 		{3EA5AE2A-D831-446A-9CA7-EE7B95BD3008} = {39A08138-1511-4985-A839-EE38C6604F7C}
+		{32E4CAB0-D6D4-413B-ADBF-70DBF75BA4A5} = {7F2FB8B8-623F-4CAE-B7B7-6FAB73A5A401}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1473BCAC-36B7-4B2D-8958-B722A8D3C8CA}
